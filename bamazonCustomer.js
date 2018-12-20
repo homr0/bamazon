@@ -1,6 +1,7 @@
 // Requirements
 var inquirer = require("inquirer");
 var mysql = require("mysql");
+var cTable = require("console.table");
 
 // Global variables
 var connection = mysql.createConnection({
@@ -14,7 +15,7 @@ var connection = mysql.createConnection({
 // Connects to database. 
 connection.connect(function(err) {
     if(err) throw err;
-    console.log("connected as id " + connection.threadId);
+    // console.log("connected as id " + connection.threadId);
     bamazonInit();
 });
 
@@ -26,14 +27,11 @@ var bamazonInit = () => {
 
 // Shows all products from Bamazon.
 var bamazonAll = () => {
-    connection.query("SELECT * FROM products", function(err, res) {
+    connection.query("SELECT item_id AS 'Product ID', product_name AS 'Product Name', price AS Price FROM products", function(err, res) {
         if (err) throw err;
 
         console.log("----- ALL BAMAZON PRODUCTS -----\n");
-
-        for(var i = 0; i < res.length; i++) {
-            console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].price);
-        }
+        console.table(res);
 
         bamazonOrder();
     });
@@ -53,7 +51,7 @@ var bamazonOrder = () => {
             message: "Quantity:",
             name: "quantity"
         }
-    ]).then(function(inquiry) {
+    ]).then((inquiry) => {
         // Gets the product information.
         connection.query("SELECT product_name, price, stock_quantity FROM products WHERE ?", {
             item_id: inquiry.item
@@ -107,7 +105,7 @@ var bamazonEnd = () => {
             message: "Would you like to place another order?",
             name: "order"
         }
-    ]).then(function(restart) {
+    ]).then((restart) => {
         if(restart.order) {
             bamazonOrder();
         } else {
