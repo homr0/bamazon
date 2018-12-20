@@ -27,7 +27,7 @@ var bamazonInit = () => {
 
 // Shows all products from Bamazon.
 var bamazonAll = () => {
-    connection.query("SELECT item_id AS 'Product ID', product_name AS 'Product Name', price AS Price FROM products", function(err, res) {
+    connection.query("SELECT item_id AS 'Item ID', product_name AS Name, price AS Price FROM products", function(err, res) {
         if (err) throw err;
 
         console.log("----- ALL BAMAZON PRODUCTS -----\n");
