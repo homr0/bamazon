@@ -49,6 +49,17 @@ var bamazonOrder = () => {
         {
             type: "input",
             message: "Quantity:",
+            validate: (input) => {
+                return new Promise(function(resolve, reject) {
+                    if(isNaN(input)) {
+                        reject("This is not a number.");
+                    } else if(parseInt(input) < 0) {
+                        reject("You should buy at least 1 of this product");
+                    } else {
+                        resolve(true);
+                    }
+                })
+            },
             name: "quantity"
         }
     ]).then((inquiry) => {
@@ -61,7 +72,7 @@ var bamazonOrder = () => {
             if(res.length > 0) {
                 // If the quantity ordered is less than what is in stock, then update the quantity.
                 var item = res[0];
-                var remaining = item.stock_quantity - inquiry.quantity;
+                var remaining = item.stock_quantity - parseInt(inquiry.quantity);
                 if(remaining >= 0) {
                     connection.query("UPDATE products SET ? WHERE ?", [
                         {
