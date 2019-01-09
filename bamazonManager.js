@@ -12,6 +12,30 @@ var connection = mysql.createConnection({
     database: "bamazon"
 });
 
+var checkQuantity = (input) => {
+    return new Promise(function(resolve, reject) {
+        if(isNaN(input)) {
+            reject("This is not a number.");
+        } else if(parseInt(input) < 0) {
+            reject("You should add at least one of this product.");
+        } else {
+            resolve(true);
+        }
+    });
+}
+
+var checkPrice = (input) => {
+    return new Promise(function(resolve, reject) {
+        if(isNaN(input)) {
+            reject("This is not a number.");
+        } else if(parseFloat(input) < 0) {
+            reject("You should have a nonnegative price for this product.");
+        } else {
+            resolve(true);
+        }
+    })
+}
+
 // Connects to database. 
 connection.connect(function(err) {
     if(err) throw err;
@@ -95,42 +119,42 @@ var bamazonNewInventory = () => {
         {
             type: "input",
             message: "Quantity to add:",
+            validate: (input) => checkQuantity(input),
             name: "quantity"
         }
     ]).then((inquiry) => {
-        if(parseFloat(inquiry.quantity) >= 0) {
-            connection.query("SELECT product_name, stock_quantity FROM products WHERE ?", {
-                item_id: inquiry.item
-            }, function(err, res) {
-                if(err) throw err;
+        connection.query("SELECT product_name, stock_quantity FROM products WHERE ?", {
+            item_id: inquiry.item
+        }, function(err, res) {
+            if(err) throw err;
 
-                if(res.length > 0) {
-                    // Adds more of an item in inventory.
-                    var item = res[0];
+            if(res.length > 0) {
+                // Adds more of an item in inventory.
+                var item = res[0];
 
-                    connection.query("UPDATE products SET ? WHERE ?", [
-                        {
-                            stock_quantity: parseFloat(item.stock_quantity) + parseFloat(inquiry.quantity)
-                        },
+                connection.query("UPDATE products SET ? WHERE ?", [
+                    {
+                        stock_quantity: parseInt(item.stock_quantity) + parseInt(inquiry.quantity)
+                    },
 
-                        {
-                            item_id: inquiry.item
-                        }
-                    ], function(err, res) {
-                        if(err) throw err;
+                    {
+                        item_id: inquiry.item
+                    }
+                ], function(err, res) {
+                    if(err) throw err;
 
-                        console.log("You added " + inquiry.quantity + " more " + item.product_name + " to Bamazon.");
-                        bamazonExit();
-                    });
-                } else {
-                    console.log("That is not a valid item ID.");
-                    bamazonNewInventory();
-                }
-            });
-        } else {
-            console.log("Please put in a positive quantity to add.");
-            bamazonNewInventory();
-        }
+                    console.log("You added "
+                    + inquiry.quantity + " "
+                    + item.product_name
+                    + ((inquiry.quantity > 1) ? "s " : " ")
+                    + " to Bamazon.");
+                    bamazonExit();
+                });
+            } else {
+                console.log("That is not a valid item ID.");
+                bamazonNewInventory();
+            }
+        });
     });
 }
 
@@ -152,32 +176,34 @@ var bamazonNewProduct = () => {
         {
             type: "input",
             message: "Price ($):",
+            validate: (input) => checkPrice(input),
             name: "price"
         },
 
         {
             type: "input",
             message: "Quantity:",
+            validate: (input) => checkQuantity(input),
             name: "quantity"
         }
     ]).then((inquiry) => {
-        if(inquiry.quantity >= 0) {
-            connection.query("INSERT INTO products SET ?", {
-                product_name: inquiry.name,
-                department_name: inquiry.department.toLowerCase(),
-                price: parseFloat(inquiry.price).toFixed(2),
-                stock_quantity: parseFloat(inquiry.quantity)
-            }, function(err, res) {
-                if(err) throw err;
+        connection.query("INSERT INTO products SET ?", {
+            product_name: inquiry.name,
+            department_name: inquiry.department.toLowerCase(),
+            price: parseFloat(inquiry.price).toFixed(2),
+            stock_quantity: parseFloat(inquiry.quantity)
+        }, function(err, res) {
+            if(err) throw err;
 
-                console.log("Added " + inquiry.quantity + " " + inquiry.name + " for $" + inquiry.price + " to Bamazon in the " + inquiry.department + " department.");
+            console.log("Added "
+            + inquiry.quantity + " "
+            + inquiry.name
+            + ((inquiry.quantity > 1) ? "s " : " ") + "for $"
+            + parseFloat(inquiry.price).toFixed(2) + " to Bamazon in the "
+            + inquiry.department + " department.");
 
-                bamazonExit();
-            });
-        } else {
-            console.log("Please put in a nonnegative quantity.");
-            bamazonNewProduct();
-        }
+            bamazonExit();
+        });
     });
 }
 
