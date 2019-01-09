@@ -12,6 +12,18 @@ var connection = mysql.createConnection({
     database: "bamazon"
 });
 
+var checkQuantity = (input) => {
+    return new Promise(function(resolve, reject) {
+        if(isNaN(input)) {
+            reject("This is not a number.");
+        } else if(parseInt(input) < 0) {
+            reject("You should add at least one of this product.");
+        } else {
+            resolve(true);
+        }
+    });
+}
+
 // Connects to database. 
 connection.connect(function(err) {
     if(err) throw err;
@@ -32,6 +44,7 @@ var bamazonAll = () => {
 
         console.log("----- ALL BAMAZON PRODUCTS -----\n");
         console.table(res);
+        console.log("Choose which product(s) you would like to order.")
 
         bamazonOrder();
     });
@@ -49,22 +62,12 @@ var bamazonOrder = () => {
         {
             type: "input",
             message: "Quantity:",
-            validate: (input) => {
-                return new Promise(function(resolve, reject) {
-                    if(isNaN(input)) {
-                        reject("This is not a number.");
-                    } else if(parseInt(input) < 0) {
-                        reject("You should buy at least 1 of this product");
-                    } else {
-                        resolve(true);
-                    }
-                })
-            },
+            validate: (input) => checkQuantity(input),
             name: "quantity"
         }
     ]).then((inquiry) => {
         // Gets the product information.
-        connection.query("SELECT product_name, price, stock_quantity FROM products WHERE ?", {
+        connection.query("SELECT product_name, price, stock_quantity, product_sales FROM products WHERE ?", {
             item_id: inquiry.item
         }, function(err, res) {
             if (err) throw err;
@@ -76,7 +79,8 @@ var bamazonOrder = () => {
                 if(remaining >= 0) {
                     connection.query("UPDATE products SET ? WHERE ?", [
                         {
-                            stock_quantity: remaining
+                            stock_quantity: remaining,
+                            product_sales: parseFloat(inquiry.quantity * item.price).toFixed(2) + parseFloat(item.product_sales)
                         },
 
                         {
