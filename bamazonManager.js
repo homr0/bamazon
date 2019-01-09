@@ -147,7 +147,7 @@ var bamazonNewInventory = () => {
                     + inquiry.quantity + " "
                     + item.product_name
                     + ((inquiry.quantity > 1) ? "s " : " ")
-                    + " to Bamazon.");
+                    + "to Bamazon.");
                     bamazonExit();
                 });
             } else {
@@ -199,7 +199,7 @@ var bamazonNewProduct = () => {
             + inquiry.quantity + " "
             + inquiry.name
             + ((inquiry.quantity > 1) ? "s " : " ") + "for $"
-            + parseFloat(inquiry.price).toFixed(2) + "to Bamazon in the "
+            + parseFloat(inquiry.price).toFixed(2) + " to Bamazon in the "
             + inquiry.department + " department.");
 
             bamazonExit();
