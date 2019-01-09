@@ -33,7 +33,7 @@ var checkPrice = (input) => {
         } else {
             resolve(true);
         }
-    })
+    });
 }
 
 // Connects to database. 
