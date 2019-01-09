@@ -12,6 +12,7 @@ CREATE TABLE products(
     department_name VARCHAR(30),
     price FLOAT(10) NOT NULL,
     stock_quantity INT(10) NOT NULL,
+    product_sales FLOAT(10) NOT NULL DEFAULT 0.00,
     PRIMARY KEY(item_id)
 );
 
@@ -26,3 +27,18 @@ INSERT INTO products(product_name, department_name, price, stock_quantity)
     ("Gloomhaven", "toys and games", 139.99, 4),
     ("Throw pillow", "home and kitchen", 12.99, 34),
     ("Power strip", "electronics", 6.99, 8);
+
+-- Department Table --
+CREATE TABLE departments(
+    department_id INT(10) NOT NULL AUTO_INCREMENT,
+    department_name VARCHAR(30) NOT NULL,
+    over_head_costs FLOAT(10) NOT NULL,
+    PRIMARY KEY(department_id)
+);
+
+INSERT INTO departments(department_name, over_head_costs)
+    VALUES ("toys and games", 20000),
+    ("pet supplies", 15000),
+    ("home and kitchen", 25000),
+    ("office supplies", 15000),
+    ("electronics", 20000);
